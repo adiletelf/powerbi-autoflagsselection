@@ -35,7 +35,17 @@ import IVisual = powerbi.extensibility.visual.IVisual;
 import EnumMemberValue = powerbi.EnumMemberValue;
 
 import { VisualFormattingSettingsModel } from "./settings";
-import { SimpleSlice } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
+
+enum Weekday {
+    Sunday = 1 << 0,
+    Monday = 1 << 1,
+    Tuesday = 1 << 2,
+    Wednesday = 1 << 3,
+    Thursday = 1 << 4,
+    Friday = 1 << 5,
+    Saturday = 1 << 6,
+}
+
 
 export class Visual implements IVisual {
     private target: HTMLElement;
@@ -62,14 +72,22 @@ export class Visual implements IVisual {
     public update(options: VisualUpdateOptions) {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews[0]);
 
-        const slice = this.formattingSettings.dataPointCard.weekday.value;
-        const weekday: number = Number(slice.valueOf());
+        const weekdayValue: EnumMemberValue = this.formattingSettings.dataPointCard.weekday.value;
+        // weekdayValue already number but I want to ensure it's a number and not a string
+        const weekdayNumber: number = Number(weekdayValue.valueOf());
+        // that's unlikely to happen but it's a good practice to check and set a default value
+        const weekday: Weekday = this.isWeekday(weekdayNumber) ? weekdayNumber : Weekday.Sunday;
+
         const binary = weekday.toString(2).padStart(7, "0");
 
         // console.log('Visual update', options);
         if (this.textNode) {
             this.textNode.textContent = binary;
         }
+    }
+
+    private isWeekday(value: number): value is Weekday {
+        return Object.values(Weekday).includes(value);
     }
 
     /**
