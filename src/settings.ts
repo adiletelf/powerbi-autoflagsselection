@@ -26,33 +26,11 @@
 
 "use strict";
 
-import powerbi from "powerbi-visuals-api";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 
-import IEnumMember = powerbi.IEnumMember;
 import FormattingSettingsCard = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
-
-enum Weekday {
-    Sunday = "1",
-    Monday = "2",
-    Tuesday = "4",
-    Wednesday = "8",
-    Thursday = "16",
-    Friday = "32",
-    Saturday = "64"
-}
-
-const weekdayOptions: IEnumMember[] = [
-    { value: Weekday.Sunday, displayName: "Sunday" },
-    { value: Weekday.Monday, displayName: "Monday" },
-    { value: Weekday.Tuesday, displayName: "Tuesday" },
-    { value: Weekday.Wednesday, displayName: "Wednesday" },
-    { value: Weekday.Thursday, displayName: "Thursday" },
-    { value: Weekday.Friday, displayName: "Friday" },
-    { value: Weekday.Saturday, displayName: "Saturday" }
-];
 
 /**
  * Data Point Formatting Card
