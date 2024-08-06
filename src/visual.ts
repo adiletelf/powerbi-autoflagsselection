@@ -34,23 +34,15 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
 import EnumMemberValue = powerbi.EnumMemberValue;
 
-import { VisualFormattingSettingsModel } from "./settings";
+import { VisualFormattingSettingsModel, Weekday } from "./settings";
 
-enum Weekday {
-    Sunday = 1 << 0,
-    Monday = 1 << 1,
-    Tuesday = 1 << 2,
-    Wednesday = 1 << 3,
-    Thursday = 1 << 4,
-    Friday = 1 << 5,
-    Saturday = 1 << 6,
-}
 
 
 export class Visual implements IVisual {
     private target: HTMLElement;
     private updateCount: number;
-    private textNode: Text;
+    private autoFlagsNode: Text;
+    private itemFlagsNode: Text;
     private formattingSettings: VisualFormattingSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
 
@@ -60,34 +52,45 @@ export class Visual implements IVisual {
         this.updateCount = 0;
         if (document) {
             const new_p: HTMLElement = document.createElement("p");
-            new_p.appendChild(document.createTextNode("Update count:"));
+            new_p.appendChild(document.createTextNode("Auto flags:"));
             const new_em: HTMLElement = document.createElement("em");
-            this.textNode = document.createTextNode(this.updateCount.toString());
-            new_em.appendChild(this.textNode);
+            this.autoFlagsNode = document.createTextNode(this.updateCount.toString());
+            new_em.appendChild(this.autoFlagsNode);
             new_p.appendChild(new_em);
             this.target.appendChild(new_p);
+
+            const new_p2: HTMLElement = document.createElement("p");
+            new_p2.appendChild(document.createTextNode("Item flags:"));
+            const new_em2: HTMLElement = document.createElement("em");
+            this.itemFlagsNode = document.createTextNode(this.updateCount.toString());
+            new_em2.appendChild(this.itemFlagsNode);
+            new_p2.appendChild(new_em2);
+            this.target.appendChild(new_p2);
         }
     }
 
     public update(options: VisualUpdateOptions) {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews[0]);
 
-        const weekdayValue: EnumMemberValue = this.formattingSettings.dataPointCard.weekday.value;
-        // weekdayValue already number but I want to ensure it's a number and not a string
-        const weekdayNumber: number = Number(weekdayValue.valueOf());
-        // that's unlikely to happen but it's a good practice to check and set a default value
-        const weekday: Weekday = this.isWeekday(weekdayNumber) ? weekdayNumber : Weekday.Sunday;
+        const autoFlagsValue: EnumMemberValue = this.formattingSettings.dataPointCard.autoFlags.value;
+        const autoFlagsNumber: number = Number(autoFlagsValue.valueOf());
+        const autoFlags: Weekday = this.isWeekday(autoFlagsNumber) ? autoFlagsNumber : Weekday.Sunday;
 
-        const binary = weekday.toString(2).padStart(7, "0");
+        // invalid typescript type, you need to use itemFlags.value.value
+        const itemFlagsValue: number = (this.formattingSettings.dataPointCard.itemFlags.value as any).value;
+        const itemFlgas: Weekday = this.isWeekday(itemFlagsValue) ? itemFlagsValue : Weekday.Sunday;
 
-        // console.log('Visual update', options);
-        if (this.textNode) {
-            this.textNode.textContent = binary;
+        if (this.autoFlagsNode) {
+            this.autoFlagsNode.textContent = autoFlags.toString(2).padStart(7, "0");
+        }
+        if (this.itemFlagsNode) {
+            this.itemFlagsNode.textContent = itemFlgas.toString(2).padStart(7, "0");
         }
     }
 
     private isWeekday(value: number): value is Weekday {
-        return Object.values(Weekday).includes(value);
+        const allFlags = Object.values(Weekday).filter((v) => typeof v === "number").reduce((acc, v: number) => acc | v, 0);
+        return (allFlags && value) === value;
     }
 
     /**

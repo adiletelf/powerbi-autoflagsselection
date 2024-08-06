@@ -14,7 +14,7 @@
     "objects": {
         "dataPoint": {
             "properties": {
-                "weekday": {
+                "autoFlags": {
                     "type": {
                         "enumeration": [
                             { "value": "1", "displayName": "Sunday" },
@@ -25,6 +25,11 @@
                             { "value": "32", "displayName": "Friday" },
                             { "value": "64", "displayName": "Saturday" }
                         ]
+                    }
+                },
+                "itemFlags": {
+                    "type": {
+                        "enumeration": []
                     }
                 }
             }

@@ -26,25 +26,54 @@
 
 "use strict";
 
+import powerbi from "powerbi-visuals-api";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 
 import FormattingSettingsCard = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
+import IEnumMember = powerbi.IEnumMember;
+
+export enum Weekday {
+    Sunday = 1 << 0,
+    Monday = 1 << 1,
+    Tuesday = 1 << 2,
+    Wednesday = 1 << 3,
+    Thursday = 1 << 4,
+    Friday = 1 << 5,
+    Saturday = 1 << 6,
+}
+
+const itemFlagsOptions: IEnumMember[] = [
+    { value: Weekday.Sunday, displayName: "Sunday" },
+    { value: Weekday.Monday, displayName: "Monday" },
+    { value: Weekday.Tuesday, displayName: "Tuesday" },
+    { value: Weekday.Wednesday, displayName: "Wednesday" },
+    { value: Weekday.Thursday, displayName: "Thursday" },
+    { value: Weekday.Friday, displayName: "Friday" },
+    { value: Weekday.Saturday, displayName: "Saturday" },
+];
 
 /**
  * Data Point Formatting Card
  */
 class DataPointCardSettings extends FormattingSettingsCard {
-    weekday = new formattingSettings.AutoFlagsSelection({
-        name: "weekday",
-        displayName: "Weekday",
+    autoFlags = new formattingSettings.AutoFlagsSelection({
+        name: "autoFlags",
+        displayName: "autoFlags",
         value: "",
+    });
+
+    itemFlags = new formattingSettings.ItemFlagsSelection({
+        name: "itemFlags",
+        displayName: "itemFlags",
+        value: "",
+        items: itemFlagsOptions,
     });
 
     name: string = "dataPoint";
     displayName: string = "Data colors";
-    slices: Array<FormattingSettingsSlice> = [this.weekday];
+    slices: Array<FormattingSettingsSlice> = [this.autoFlags, this.itemFlags];
 }
 
 /**
